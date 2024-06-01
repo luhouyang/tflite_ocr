@@ -81,7 +81,7 @@ class _DrawingPadState extends State<DrawingPad> {
     final interpreter =
         await tfl.Interpreter.fromAsset('assets/ocr_model.tflite');
 
-    List<List<List<List<double>>>> input = StaticData().input;
+    // List<List<List<List<double>>>> input = StaticData().input;
     List<String> classes = StaticData().classes;
 
     var output = List.filled(47, 0).reshape([1, 47]);
@@ -103,7 +103,7 @@ class _DrawingPadState extends State<DrawingPad> {
   }
 
   // Convert the image to Uint8List
-  // Uint8List imageBytes = Uint8List.fromList(img.encodePng(img.Image(width: 28, height: 28)));
+  Uint8List imageBytes = Uint8List.fromList(img.encodePng(img.Image(width: 28, height: 28)));
   String predTxt = '';
 
   @override
@@ -127,12 +127,12 @@ class _DrawingPadState extends State<DrawingPad> {
 
     return Column(
       children: [
-        // Image.memory(imageBytes),
+        Image.memory(imageBytes, scale: 0.1,),
         RepaintBoundary(
           key: _repaintKey,
           child: Container(
             decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
+                //border: Border.all(color: Colors.black),
                 borderRadius: BorderRadius.circular(8)),
             height: 300,
             width: 350,
@@ -151,7 +151,7 @@ class _DrawingPadState extends State<DrawingPad> {
             List<List<List<List<double>>>> imageArray =
                 _convertToNormalizedArray(processedImage);
             debugPrint(imageArray.shape.toString());
-            // imageBytes = Uint8List.fromList(img.encodePng(processedImage));
+            imageBytes = Uint8List.fromList(img.encodePng(processedImage));
             predTxt = await predict(imageArray);
             // You can now use `processedImage` as needed.
             setState(() => points.clear());
@@ -202,7 +202,7 @@ class _DrawingPadState extends State<DrawingPad> {
 
     // Normalize to [0, 1]
     img.Image finalImage =
-        img.adjustColor(resizedImage, contrast: 1.0, brightness: 0);
+        img.adjustColor(resizedImage, contrast: 1.0, brightness: 1.0);
 
     // Convert the final image to a byte array
     return finalImage;
@@ -254,7 +254,10 @@ class _DrawingPadState extends State<DrawingPad> {
     int offsetX = (size - image.width) ~/ 2;
     int offsetY = (size - image.height) ~/ 2;
 
-    img.compositeImage(squareImage, image, dstX: offsetX, dstY: offsetY);
+    img.compositeImage(squareImage, image, 
+    dstX: offsetX, 
+    dstY: offsetY
+    );
     return img.grayscale(squareImage);
   }
 }
@@ -268,7 +271,7 @@ class DrawingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
       ..color = Colors.black
-      ..strokeWidth = 10.0;
+      ..strokeWidth = 15.0;
     for (int i = 0; i < points.length - 1; i++) {
       canvas.drawLine(points[i], points[i + 1], paint);
     }

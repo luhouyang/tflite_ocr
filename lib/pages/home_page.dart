@@ -45,41 +45,41 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<int> byteList = [];
-    List<List<List<List<double>>>> data = StaticData().input;
+    // List<int> byteList = [];
+    // List<List<List<List<double>>>> data = StaticData().input;
 
-    for (int i = 0; i < data.length; i++) {
-      for (int j = 0; j < data[i].length; j++) {
-        for (int k = 0; k < data[i][j].length; k++) {
-          for (int l = 0; l < data[i][j][k].length; l++) {
-            // Scale the double value to the range [0, 255]
-            int byteValue = (data[i][j][k][l] * 255).round();
-            byteList.add(byteValue);
-          }
-        }
-      }
-    }
-    debugPrint(byteList.shape.toString());
+    // for (int i = 0; i < data.length; i++) {
+    //   for (int j = 0; j < data[i].length; j++) {
+    //     for (int k = 0; k < data[i][j].length; k++) {
+    //       for (int l = 0; l < data[i][j][k].length; l++) {
+    //         // Scale the double value to the range [0, 255]
+    //         int byteValue = (data[i][j][k][l] * 255).round();
+    //         byteList.add(byteValue);
+    //       }
+    //     }
+    //   }
+    // }
+    // debugPrint(byteList.shape.toString());
 
-    // Create the image
-    img.Image image = img.Image(width: 28, height: 28);
+    // // Create the image
+    // img.Image image = img.Image(width: 28, height: 28);
 
-    // Set pixel values
-    for (int y = 0; y < 28; y++) {
-      for (int x = 0; x < 28; x++) {
-        int pixelIndex = y * 28 + x;
-        if (pixelIndex < byteList.length) {
-          // Ensure pixel value is in the range [0, 255]
-          int pixelValue = byteList[pixelIndex].clamp(0, 255);
-          // Set the pixel value
-          image.setPixel(x, y, img.ColorRgb8(pixelValue, pixelValue, pixelValue));
-        }
-      }
-    }
+    // // Set pixel values
+    // for (int y = 0; y < 28; y++) {
+    //   for (int x = 0; x < 28; x++) {
+    //     int pixelIndex = y * 28 + x;
+    //     if (pixelIndex < byteList.length) {
+    //       // Ensure pixel value is in the range [0, 255]
+    //       int pixelValue = byteList[pixelIndex].clamp(0, 255);
+    //       // Set the pixel value
+    //       image.setPixel(x, y, img.ColorRgb8(pixelValue, pixelValue, pixelValue));
+    //     }
+    //   }
+    // }
 
-    Uint8List imageBytes = Uint8List.fromList(img.encodePng(image));
+    // Uint8List imageBytes = Uint8List.fromList(img.encodePng(image));
 
-    debugPrint(imageBytes.toString());
+    // debugPrint(imageBytes.toString());
 
     return Scaffold(
       body: Row(
@@ -90,18 +90,21 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                const SizedBox(
+                  height: 35,
+                ),
                 Container(
                   decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
+                      //border: Border.all(color: Colors.black),
                       borderRadius: BorderRadius.circular(8)),
-                  height: 400,
+                  height: 700,
                   width: 350,
                   child: DrawingPad(),
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                Image.memory(imageBytes, scale: 0.1,),
+                // Image.memory(imageBytes, scale: 0.1,),
                 // Text("Prediction: $predTxt"),
                 // const SizedBox(
                 //   height: 5,
