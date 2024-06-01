@@ -18,7 +18,7 @@ class DrawingPad extends StatefulWidget {
 class _DrawingPadState extends State<DrawingPad> {
   List<Offset> points = []; // List to store touch points
 
-  GlobalKey _repaintKey = GlobalKey();
+  final GlobalKey _repaintKey = GlobalKey();
 
   Future<String> predict(input) async {
     final interpreter =
@@ -46,49 +46,114 @@ class _DrawingPadState extends State<DrawingPad> {
   }
 
   // Convert the image to Uint8List
-  Uint8List imageBytes = Uint8List.fromList(img.encodePng(img.Image(width: 28, height: 28)));
+  Uint8List imageBytes =
+      Uint8List.fromList(img.encodePng(img.Image(width: 28, height: 28)));
   String predTxt = '';
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: [
-        Image.memory(imageBytes, scale: 0.1,),
-        RepaintBoundary(
-          key: _repaintKey,
-          child: Container(
-            decoration: BoxDecoration(
-                //border: Border.all(color: Colors.black),
-                borderRadius: BorderRadius.circular(8)),
-            height: 300,
-            width: 350,
-            child: GestureDetector(
-              onPanUpdate: (details) =>
-                  setState(() => points.add(details.localPosition)),
-              child: CustomPaint(
-                painter: DrawingPainter(points),
+        Image.memory(
+          imageBytes,
+          scale: 0.1,
+        ),
+        Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.0),
+              border: Border.all(color: Colors.black)),
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8.0),
+                        topRight: Radius.circular(8.0))),
+                height: MediaQuery.of(context).size.height * 0.4,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.4,
+                        width: MediaQuery.of(context).size.width,
+                        child: RepaintBoundary(
+                          key: _repaintKey,
+                          child: GestureDetector(
+                            onPanUpdate: (details) {
+                              // check if in boundries
+                              if ((details.localPosition.dx <=
+                                          MediaQuery.of(context).size.width &&
+                                      details.localPosition.dx >= 0) &&
+                                  (details.localPosition.dy <=
+                                          MediaQuery.of(context).size.height *
+                                              0.4 &&
+                                      details.localPosition.dy >= 0)) {
+                                setState(
+                                    () => points.add(details.localPosition));
+                              }
+                            },
+                            child: CustomPaint(
+                              painter: DrawingPainter(points),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (points.isEmpty)
+                      const Center(
+                        child: Text('Draw Here'),
+                      )
+                  ],
+                ),
               ),
-            ),
+              Container(
+                decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(8.0),
+                        bottomRight: Radius.circular(8.0))),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    ElevatedButton(
+                      style: const ButtonStyle(
+                          backgroundColor: MaterialStatePropertyAll(
+                              ui.Color.fromARGB(255, 64, 83, 231))),
+                      onPressed: () async {
+                        img.Image processedImage =
+                            await _captureAndPreprocessImage();
+                        List<List<List<List<double>>>> imageArray =
+                            _convertToNormalizedArray(processedImage);
+
+                        imageBytes =
+                            Uint8List.fromList(img.encodePng(processedImage));
+
+                        predTxt = await predict(imageArray);
+                        // You can now use `processedImage` as needed.
+                        setState(() => points.clear());
+                      },
+                      child: const Text(
+                        'Predict & Clear',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Text(
+                      "Prediction: $predTxt",
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        ElevatedButton(
-          onPressed: () async {
-            img.Image processedImage = await _captureAndPreprocessImage();
-            List<List<List<List<double>>>> imageArray =
-                _convertToNormalizedArray(processedImage);
-            debugPrint(imageArray.shape.toString());
-            imageBytes = Uint8List.fromList(img.encodePng(processedImage));
-            predTxt = await predict(imageArray);
-            // You can now use `processedImage` as needed.
-            setState(() => points.clear());
-          },
-          child: const Text('Predict Clear'),
-        ),
-        const SizedBox(
-                  height: 5,
-                ),
-        Text("Prediction: $predTxt"),    
       ],
     );
   }
@@ -161,9 +226,7 @@ class _DrawingPadState extends State<DrawingPad> {
   img.Image _extractBoundingBox(img.Image image) {
     List<int>? trimRect;
 
-    if (trimRect == null) {
-      trimRect = img.findTrim(image, mode: img.TrimMode.transparent);
-    }
+    trimRect ??= img.findTrim(image, mode: img.TrimMode.transparent);
     final trimmed = img.copyCrop(image,
         x: trimRect[0],
         y: trimRect[1],
@@ -181,10 +244,7 @@ class _DrawingPadState extends State<DrawingPad> {
     int offsetX = (size - image.width) ~/ 2;
     int offsetY = (size - image.height) ~/ 2;
 
-    img.compositeImage(squareImage, image, 
-    dstX: offsetX, 
-    dstY: offsetY
-    );
+    img.compositeImage(squareImage, image, dstX: offsetX, dstY: offsetY);
     return img.grayscale(squareImage);
   }
 }
