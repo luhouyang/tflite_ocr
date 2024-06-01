@@ -23,3 +23,4 @@ flutter:
 
   assets:
     - assets/ocr_model.tflite
+    - assets/ocr_model_q.tflite

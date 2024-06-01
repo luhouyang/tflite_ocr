@@ -16,32 +16,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Future<String> predict() async {
-    final interpreter =
-        await tfl.Interpreter.fromAsset('assets/ocr_model.tflite');
+  // Future<String> predict() async {
+  //   final interpreter =
+  //       await tfl.Interpreter.fromAsset('assets/ocr_model.tflite');
 
-    List<List<List<List<double>>>> input = StaticData().input;
-    List<String> classes = StaticData().classes;
+  //   List<List<List<List<double>>>> input = StaticData().input;
+  //   List<String> classes = StaticData().classes;
 
-    var output = List.filled(47, 0).reshape([1, 47]);
+  //   var output = List.filled(47, 0).reshape([1, 47]);
 
-    interpreter.run(input, output);
+  //   interpreter.run(input, output);
 
-    int maxIndex = 0;
-    double maxValue = output[0][0];
+  //   int maxIndex = 0;
+  //   double maxValue = output[0][0];
 
-    for (int i = 1; i < output[0].length; i++) {
-      maxValue =
-          math.max(maxValue, output[0][i]); // Use math.max for comparison
-    }
+  //   for (int i = 1; i < output[0].length; i++) {
+  //     maxValue =
+  //         math.max(maxValue, output[0][i]); // Use math.max for comparison
+  //   }
 
-    maxIndex = output[0].indexOf(maxValue);
+  //   maxIndex = output[0].indexOf(maxValue);
 
-    debugPrint(classes[maxIndex]);
-    return classes[maxIndex];
-  }
+  //   debugPrint(classes[maxIndex]);
+  //   return classes[maxIndex];
+  // }
 
-  String predTxt = '';
+  // String predTxt = '';
 
   @override
   Widget build(BuildContext context) {

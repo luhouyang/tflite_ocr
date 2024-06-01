@@ -79,7 +79,7 @@ class _DrawingPadState extends State<DrawingPad> {
 
   Future<String> predict(input) async {
     final interpreter =
-        await tfl.Interpreter.fromAsset('assets/ocr_model.tflite');
+        await tfl.Interpreter.fromAsset('assets/ocr_model_q.tflite');
 
     // List<List<List<List<double>>>> input = StaticData().input;
     List<String> classes = StaticData().classes;
