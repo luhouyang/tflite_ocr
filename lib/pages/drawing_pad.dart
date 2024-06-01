@@ -1,60 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class DrawingPad extends StatefulWidget {
-//   const DrawingPad({super.key});
-
-//   @override
-//   State<DrawingPad> createState() => _DrawingPadState();
-// }
-
-// class _DrawingPadState extends State<DrawingPad> {
-//   List<Offset> points = []; // List to store touch points
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         Container(
-//           decoration: BoxDecoration(
-//                       border: Border.all(color: Colors.black),
-//                       borderRadius: BorderRadius.circular(8)),
-//           height: 300,
-//           width: 350,
-//           child: GestureDetector(
-//             onPanUpdate: (details) =>
-//                 setState(() => points.add(details.localPosition)),
-//             child: CustomPaint(
-//               painter: DrawingPainter(points),
-//             ),
-//           ),
-//         ),
-//         ElevatedButton(
-//           onPressed: () => setState(() => points.clear()),
-//           child: const Text('Clear'),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-// class DrawingPainter extends CustomPainter {
-//   final List<Offset> points;
-
-//   DrawingPainter(this.points);
-
-//   @override
-//   void paint(Canvas canvas, Size size) {
-//     Paint paint = Paint()
-//       ..color = Colors.black
-//       ..strokeWidth = 5.0;
-//     for (int i = 0; i < points.length - 1; i++) {
-//       canvas.drawLine(points[i], points[i + 1], paint);
-//     }
-//   }
-
-//   @override
-//   bool shouldRepaint(CustomPainter oldDelegate) => true;
-// }
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -108,22 +51,6 @@ class _DrawingPadState extends State<DrawingPad> {
 
   @override
   Widget build(BuildContext context) {
-    // List<int> byteList = [];
-    // List<List<List<List<double>>>> data = StaticData().input;
-
-    // for (int i = 0; i < data.length; i++) {
-    //   for (int j = 0; j < data[i].length; j++) {
-    //     for (int k = 0; k < data[i][j].length; k++) {
-    //       for (int l = 0; l < data[i][j][k].length; l++) {
-    //         // Scale the double value to the range [0, 255]
-    //         int byteValue = (data[i][j][k][l] * 255).round();
-    //         byteList.add(byteValue);
-    //       }
-    //     }
-    //   }
-    // }
-
-    // Uint8List imageBytes = Uint8List.fromList(byteList);
 
     return Column(
       children: [
