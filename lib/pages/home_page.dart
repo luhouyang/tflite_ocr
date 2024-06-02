@@ -38,7 +38,7 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     decoration:
                         BoxDecoration(borderRadius: BorderRadius.circular(8)),
-                    height: MediaQuery.of(context).size.height * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.93,
                     child: const DrawingPad(),
                   ),
                   const SizedBox(

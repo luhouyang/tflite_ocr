@@ -48,15 +48,119 @@ class _DrawingPadState extends State<DrawingPad> {
   // Convert the image to Uint8List
   Uint8List imageBytes =
       Uint8List.fromList(img.encodePng(img.Image(width: 28, height: 28)));
+
+  List<Uint8List> imageListBytes = [
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28
+  ];
+
+  bool _preprocessingView = false;
+
   String predTxt = '';
+
+  Widget drawingBoard() {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.4,
+      width: MediaQuery.of(context).size.width,
+      child: RepaintBoundary(
+        key: _repaintKey,
+        child: GestureDetector(
+          onPanUpdate: (details) {
+            // check if in boundries
+            if ((details.localPosition.dx <=
+                        MediaQuery.of(context).size.width &&
+                    details.localPosition.dx >= 0) &&
+                (details.localPosition.dy <=
+                        MediaQuery.of(context).size.height * 0.4 &&
+                    details.localPosition.dy >= 0)) {
+              if (points.isEmpty) {
+                setState(() => points.add(details.localPosition));
+              } else {
+                if ((points.last - details.localPosition).distance > 30) {
+                  setState(() {
+                    points
+                        .addAll([details.localPosition, details.localPosition]);
+                  });
+                } else {
+                  setState(() => points.add(details.localPosition));
+                }
+              }
+            }
+          },
+          child: CustomPaint(
+            painter: DrawingPainter(points),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Image.memory(
-          imageBytes,
-          scale: 0.1,
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            _preprocessingView
+                ? const Text(
+                    "Output View",
+                    style: TextStyle(fontWeight: ui.FontWeight.bold),
+                  )
+                : const Text(
+                    "Preprocessing View",
+                    style: TextStyle(fontWeight: ui.FontWeight.bold),
+                  ),
+            Switch(
+                value: _preprocessingView,
+                activeColor: const ui.Color.fromARGB(255, 64, 83, 231),
+                activeTrackColor: Colors.blue[200],
+                inactiveThumbColor: Colors.black,
+                inactiveTrackColor: Colors.grey,
+                onChanged: (bool value) {
+                  setState(() {
+                    _preprocessingView = value;
+                  });
+                }),
+          ],
+        ),
+        _preprocessingView
+            ? Container(
+                decoration: BoxDecoration(
+                    color: Colors.grey,
+                    border: Border.all(color: Colors.black),
+                    borderRadius: BorderRadius.circular(8.0)),
+                height: MediaQuery.of(context).size.height * 0.3,
+                child: GridView.builder(
+                  padding: const EdgeInsets.fromLTRB(5, 30, 5, 0),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: imageListBytes.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisSpacing: 2,
+                      mainAxisSpacing: 2,
+                      crossAxisCount: 4),
+                  itemBuilder: (context, index) {
+                    return Image.memory(
+                      imageListBytes[index],
+                      scale: 0.3,
+                    );
+                  },
+                ),
+              )
+            : Image.memory(
+                imageBytes,
+                scale: 0.1,
+              ),
+        const SizedBox(
+          height: 10,
         ),
         Container(
           decoration: BoxDecoration(
@@ -73,35 +177,7 @@ class _DrawingPadState extends State<DrawingPad> {
                 height: MediaQuery.of(context).size.height * 0.4,
                 child: Stack(
                   children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.4,
-                        width: MediaQuery.of(context).size.width,
-                        child: RepaintBoundary(
-                          key: _repaintKey,
-                          child: GestureDetector(
-                            onPanUpdate: (details) {
-                              // check if in boundries
-                              if ((details.localPosition.dx <=
-                                          MediaQuery.of(context).size.width &&
-                                      details.localPosition.dx >= 0) &&
-                                  (details.localPosition.dy <=
-                                          MediaQuery.of(context).size.height *
-                                              0.4 &&
-                                      details.localPosition.dy >= 0)) {
-                                setState(
-                                    () => points.add(details.localPosition));
-                              }
-                            },
-                            child: CustomPaint(
-                              painter: DrawingPainter(points),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    Positioned(top: 0, left: 0, child: drawingBoard()),
                     if (points.isEmpty)
                       const Center(
                         child: Text('Draw Here'),
@@ -120,7 +196,7 @@ class _DrawingPadState extends State<DrawingPad> {
                   children: [
                     ElevatedButton(
                       style: const ButtonStyle(
-                          backgroundColor: MaterialStatePropertyAll(
+                          backgroundColor: WidgetStatePropertyAll(
                               ui.Color.fromARGB(255, 64, 83, 231))),
                       onPressed: () async {
                         img.Image processedImage =
@@ -165,36 +241,44 @@ class _DrawingPadState extends State<DrawingPad> {
     ui.Image image = await boundary.toImage(pixelRatio: 3.0);
     ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     Uint8List pngBytes = byteData!.buffer.asUint8List();
+    if (_preprocessingView) imageListBytes[0] = pngBytes;
 
     // Load the image with the image package
     img.Image capturedImage = img.decodeImage(pngBytes)!;
 
     // Invert colors
     img.invert(capturedImage);
+    if (_preprocessingView) imageListBytes[1] = img.encodePng(capturedImage);
 
     // Apply Gaussian blur with sigma = 1
     capturedImage = img.gaussianBlur(capturedImage, radius: 1);
+    if (_preprocessingView) imageListBytes[2] = img.encodePng(capturedImage);
 
     // Convert to grayscale
     capturedImage = img.grayscale(capturedImage);
+    if (_preprocessingView) imageListBytes[3] = img.encodePng(capturedImage);
 
     // Extract the region around the character (bounding box)
     img.Image boundingBoxImage = _extractBoundingBox(capturedImage);
 
     // Center the character in a square image
     img.Image squareImage = _centerImage(boundingBoxImage);
+    if (_preprocessingView) imageListBytes[4] = img.encodePng(squareImage);
 
     // Add a 2-pixel border
     img.Image paddedImage = img.copyResize(squareImage,
         width: squareImage.width + 4, height: squareImage.height + 4);
+    if (_preprocessingView) imageListBytes[5] = img.encodePng(paddedImage);
 
     // Resize to 28x28
     img.Image resizedImage = img.copyResize(paddedImage,
         width: 28, height: 28, interpolation: img.Interpolation.cubic);
+    if (_preprocessingView) imageListBytes[6] = img.encodePng(resizedImage);
 
     // Normalize to [0, 1]
     img.Image finalImage =
         img.adjustColor(resizedImage, contrast: 1.0, brightness: 1.0);
+    if (_preprocessingView) imageListBytes[7] = img.encodePng(finalImage);
 
     // Convert the final image to a byte array
     return finalImage;
@@ -258,9 +342,13 @@ class DrawingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
       ..color = Colors.black
+      ..strokeCap = StrokeCap.round
       ..strokeWidth = 15.0;
-    for (int i = 0; i < points.length - 1; i++) {
-      canvas.drawLine(points[i], points[i + 1], paint);
+    for (int i = 0; i < points.length - 2; i++) {
+      if (points[i + 1] == points[i + 2]) {
+      } else {
+        canvas.drawLine(points[i], points[i + 1], paint);
+      }
     }
   }
 

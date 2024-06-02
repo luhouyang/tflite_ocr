@@ -1,4 +1,9 @@
+import 'dart:typed_data';
+import 'package:image/image.dart' as img;
+
 class StaticData {
+  Uint8List uintImg28_28 = Uint8List.fromList(img.encodePng(img.Image(width: 28, height: 28, backgroundColor: img.ColorUint8(128))));
+  
   final List<List<List<List<double>>>> input = [
       [
         [
