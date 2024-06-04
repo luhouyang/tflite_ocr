@@ -16,6 +16,8 @@ class DrawingPad extends StatefulWidget {
 }
 
 class _DrawingPadState extends State<DrawingPad> {
+  bool _isRunning = false;
+
   List<Offset> points = []; // List to store touch points
 
   final GlobalKey _repaintKey = GlobalKey();
@@ -42,6 +44,7 @@ class _DrawingPadState extends State<DrawingPad> {
     maxIndex = output[0].indexOf(maxValue);
 
     debugPrint(classes[maxIndex]);
+    interpreter.close();
     return classes[maxIndex];
   }
 
@@ -199,17 +202,21 @@ class _DrawingPadState extends State<DrawingPad> {
                           backgroundColor: WidgetStatePropertyAll(
                               ui.Color.fromARGB(255, 64, 83, 231))),
                       onPressed: () async {
-                        img.Image processedImage =
-                            await _captureAndPreprocessImage();
-                        List<List<List<List<double>>>> imageArray =
-                            _convertToNormalizedArray(processedImage);
+                        if (!_isRunning) {
+                          _isRunning = true;
+                          img.Image processedImage =
+                              await _captureAndPreprocessImage();
+                          List<List<List<List<double>>>> imageArray =
+                              _convertToNormalizedArray(processedImage);
 
-                        imageBytes =
-                            Uint8List.fromList(img.encodePng(processedImage));
+                          imageBytes =
+                              Uint8List.fromList(img.encodePng(processedImage));
 
-                        predTxt = await predict(imageArray);
-                        // You can now use `processedImage` as needed.
-                        setState(() => points.clear());
+                          predTxt = await predict(imageArray);
+                          // You can now use `processedImage` as needed.
+                          setState(() => points.clear());
+                          _isRunning = false;
+                        }
                       },
                       child: const Text(
                         'Predict & Clear',

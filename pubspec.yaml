@@ -1,5 +1,5 @@
 name: ocr
-description: "A new Flutter project."
+description: "Optical Character Recognition with CNN"
 publish_to: 'none'
 version: 0.1.0
 
