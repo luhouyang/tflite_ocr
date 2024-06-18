@@ -25,3 +25,4 @@ flutter:
   assets:
     - assets/ocr_model.tflite
     - assets/ocr_model_q.tflite
+    - assets/quantized_model_xxs.tflite

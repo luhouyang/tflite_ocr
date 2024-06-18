@@ -36,8 +36,7 @@ class _HomePageState extends State<HomePage> {
                     height: 30,
                   ),
                   Container(
-                    decoration:
-                        BoxDecoration(borderRadius: BorderRadius.circular(8)),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
                     height: MediaQuery.of(context).size.height * 0.93,
                     child: const DrawingPad(),
                   ),
