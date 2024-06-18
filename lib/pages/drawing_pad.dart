@@ -23,7 +23,7 @@ class _DrawingPadState extends State<DrawingPad> {
   final GlobalKey _repaintKey = GlobalKey();
 
   bool _xxsModel = false;
-  List<String> modelPaths = ['assets/ocr_model_q.tflite', 'assets/quantized_model_xxs.tflite'];
+  List<String> modelPaths = ['assets/ocr_model_q.tflite', 'assets/quantized_model_xxs_v2.tflite'];
   String predictionTime = "";
 
   Future<String> predict(input) async {
@@ -167,7 +167,7 @@ class _DrawingPadState extends State<DrawingPad> {
           ],
         ),
         Text(
-          "Model Size ${_xxsModel ? '13,871' : '147,919'} | Processing ${processingTime}ms | Prediction ${predictionTime}ms",
+          "Model Size ${_xxsModel ? '12,335' : '147,919'} | Processing ${processingTime}ms | Prediction ${predictionTime}ms",
           style: const TextStyle(fontWeight: ui.FontWeight.bold, fontSize: 12),
         ),
         _preprocessingView
