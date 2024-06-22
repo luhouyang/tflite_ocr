@@ -3,8 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image/image.dart' as img;
-
-import 'package:ocr/static_data.dart';
+import 'package:ocr/utils/static_data.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tfl;
 import 'dart:math' as math;
 
@@ -16,16 +15,50 @@ class DrawingPad extends StatefulWidget {
 }
 
 class _DrawingPadState extends State<DrawingPad> {
-  bool _isRunning = false;
-
+  /*
+  // drawing pad variable
+  */
   List<Offset> points = []; // List to store touch points
-
   final GlobalKey _repaintKey = GlobalKey();
 
+  /* 
+  // model variables
+  */
   bool _xxsModel = false;
   List<String> modelPaths = ['assets/ocr_model_q.tflite', 'assets/quantized_model_xxs_v2.tflite'];
-  String predictionTime = "";
 
+  /*
+  // prediction variables
+  */
+  bool _isRunning = false;
+  String predTxt = '';
+  String predictionTime = "";
+  String processingTime = "";
+  Stopwatch stopwatch = Stopwatch()..start();
+
+  /*
+  // UI/Image Processing variables 
+  */
+  bool _preprocessingView = false;
+
+  // Convert the image to Uint8List
+  Uint8List imageBytes = Uint8List.fromList(img.encodePng(img.Image(width: 28, height: 28)));
+
+  // empty images for initial convert view
+  List<Uint8List> imageListBytes = [
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28,
+    StaticData().uintImg28_28
+  ];
+
+  /*
+  // predict function
+  // */
   Future<String> predict(input) async {
     // change model based on switch
     final interpreter = await tfl.Interpreter.fromAsset(modelPaths[_xxsModel ? 1 : 0]);
@@ -51,27 +84,9 @@ class _DrawingPadState extends State<DrawingPad> {
     return classes[maxIndex];
   }
 
-  // Convert the image to Uint8List
-  Uint8List imageBytes = Uint8List.fromList(img.encodePng(img.Image(width: 28, height: 28)));
-
-  List<Uint8List> imageListBytes = [
-    StaticData().uintImg28_28,
-    StaticData().uintImg28_28,
-    StaticData().uintImg28_28,
-    StaticData().uintImg28_28,
-    StaticData().uintImg28_28,
-    StaticData().uintImg28_28,
-    StaticData().uintImg28_28,
-    StaticData().uintImg28_28
-  ];
-
-  bool _preprocessingView = false;
-  String processingTime = "";
-
-  String predTxt = '';
-
-  Stopwatch stopwatch = Stopwatch()..start();
-
+  /*
+  // drawing board/area widget
+  */
   Widget drawingBoard() {
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.4,
@@ -104,6 +119,9 @@ class _DrawingPadState extends State<DrawingPad> {
     );
   }
 
+  /*
+  // UI
+  */
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -227,7 +245,7 @@ class _DrawingPadState extends State<DrawingPad> {
                           Duration t1 = stopwatch.elapsed;
                           _isRunning = true;
                           img.Image processedImage = await _captureAndPreprocessImage();
-                          List<List<List<List<double>>>> imageArray = _convertToNormalizedArray(processedImage);
+                          List<List<List<List<double>>>> imageArray = _convertToNormalizedArray(processedImage, 28);
 
                           imageBytes = Uint8List.fromList(img.encodePng(processedImage));
 
@@ -261,6 +279,9 @@ class _DrawingPadState extends State<DrawingPad> {
     );
   }
 
+  /*
+  // Image processing functions
+  */
   Future<img.Image> _captureAndPreprocessImage() async {
     // Capture the drawing as an image
     RenderRepaintBoundary boundary = _repaintKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
@@ -307,20 +328,20 @@ class _DrawingPadState extends State<DrawingPad> {
     return finalImage;
   }
 
-  List<List<List<List<double>>>> _convertToNormalizedArray(img.Image image) {
+  List<List<List<List<double>>>> _convertToNormalizedArray(img.Image image, int dims) {
     List<List<List<List<double>>>> normalizedArray = List.generate(
       1,
       (_) => List.generate(
-        28,
+        dims,
         (_) => List.generate(
-          28,
+          dims,
           (_) => List.filled(1, 0.0),
         ),
       ),
     );
 
-    for (int y = 0; y < 28; y++) {
-      for (int x = 0; x < 28; x++) {
+    for (int y = 0; y < dims; y++) {
+      for (int x = 0; x < dims; x++) {
         img.Pixel pixel = image.getPixel(x, y);
         double gray = img.getLuminance(pixel) as double;
         normalizedArray[0][y][x][0] = gray;
