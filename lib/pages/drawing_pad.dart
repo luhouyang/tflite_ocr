@@ -208,7 +208,7 @@ class _DrawingPadState extends State<DrawingPad> {
               )
             : Image.memory(
                 imageBytes,
-                scale: 0.1,
+                scale: 0.125,
               ),
         const SizedBox(
           height: 10,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ocr/pages/drawing_pad.dart';
+import 'package:ocr/pages/info_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -33,11 +34,22 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    height: 30,
+                    height: 20,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const InfoPage(),
+                          )),
+                      icon: const Icon(Icons.info_outline_rounded),
+                    ),
                   ),
                   Container(
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
-                    height: MediaQuery.of(context).size.height * 0.93,
+                    height: MediaQuery.of(context).size.height * 0.85,
                     // widget here
                     child: const DrawingPad(),
                   ),
