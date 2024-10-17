@@ -58,7 +58,7 @@ class _DrawingPadState extends State<DrawingPad> {
 
   /*
   // predict function
-  // */
+  */
   Future<String> predict(input) async {
     // change model based on switch
     final interpreter = await tfl.Interpreter.fromAsset(modelPaths[_xxsModel ? 1 : 0]);
